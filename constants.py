@@ -1,0 +1,3 @@
+SKINS_DIRECTORY = "skins"
+CSV_FILENAME = "skins.csv"
+CSV_DELIMITER = "|"

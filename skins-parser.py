@@ -5,8 +5,8 @@ from fake_headers import Headers
 from joblib import Parallel, delayed
 from PIL import Image
 from io import BytesIO
+from constants import SKINS_DIRECTORY
 
-SKINS_DIRECTORY = "skins"
 PLAYER_SKIN_WIDTH = 64
 LAST_SKIN_ID = 6545503281
 
