@@ -38,7 +38,7 @@ def download_skin(id: int):
 
 if __name__ == '__main__':
     # ensure "skins" folder exists
-    pathlib.Path("skins").mkdir(parents=True, exist_ok=True)
+    pathlib.Path(SKINS_DIRECTORY).mkdir(parents=True, exist_ok=True)
 
     last_downloaded_skin_id = get_last_downloaded_skin_id() or 0
 
