@@ -1,6 +1,6 @@
 import os
-from urllib.request import Request, urlopen
 import pathlib
+from urllib.request import Request, urlopen
 from fake_headers import Headers
 from joblib import Parallel, delayed
 from PIL import Image
