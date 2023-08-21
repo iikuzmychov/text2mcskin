@@ -37,9 +37,7 @@ def download_skin(id: int):
 
 
 if __name__ == '__main__':
-    # ensure "skins" folder exists
-    pathlib.Path(SKINS_DIRECTORY).mkdir(parents=True, exist_ok=True)
-
     last_downloaded_skin_id = get_last_downloaded_skin_id() or 0
 
+    pathlib.Path(SKINS_DIRECTORY).mkdir(parents=True, exist_ok=True)  # ensure "skins" folder exists
     Parallel(n_jobs=-1)(delayed(download_skin)(i) for i in range(last_downloaded_skin_id + 1, LAST_SKIN_ID + 1))
