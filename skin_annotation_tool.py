@@ -3,6 +3,7 @@ import os
 import PySimpleGUI as gui
 import asyncio
 import numpy as np
+import pyperclip
 from typing import Optional
 from minepi import Skin
 from PIL import Image, ImageOps
@@ -117,6 +118,8 @@ class MainWindow:
             elif event == "-TOGGLE-SKIN-OUTLINE-BUTTON-":
                 self.draw_skin_outline = not self.draw_skin_outline
                 self.__load_skin()
+            elif event == "-SKIN-FILENAME-BUTTON-":
+                pyperclip.copy(self.__window[event].get_text())
 
         self.__window.close()
 
@@ -125,7 +128,7 @@ class MainWindow:
             [gui.Button("Toggle outline", key="-TOGGLE-SKIN-OUTLINE-BUTTON-")],
             [gui.Text("Front view"), gui.Text(size=(15, 1)), gui.Text("Back view")],
             [gui.Image(key="-SKIN-FRONT-IMAGE-", size=(220, 420)), gui.Image(key="-SKIN-BACK-IMAGE-", size=(220, 420))],
-            [gui.Button("<<<", key="-FIRST-SKIN-BUTTON-"), gui.Button("<", key="-PREVIOUS-SKIN-BUTTON-", size=(4, None)), gui.Text(key="-SKIN-FILENAME-TEXT-", size=(15, ), justification="center"), gui.Button(">", key="-NEXT-SKIN-BUTTON-", size=(4, None)), gui.Button(">>>", key="-LAST-SKIN-BUTTON-")],
+            [gui.Button("<<<", key="-FIRST-SKIN-BUTTON-"), gui.Button("<", key="-PREVIOUS-SKIN-BUTTON-", size=(4, None)), gui.Button(key="-SKIN-FILENAME-BUTTON-", size=(15, 1), tooltip="Copy filename"), gui.Button(">", key="-NEXT-SKIN-BUTTON-", size=(4, None)), gui.Button(">>>", key="-LAST-SKIN-BUTTON-")],
             [gui.Multiline(key='-SKIN-DESCRIPTION-INPUT-', size=(60, 4), expand_x=True, no_scrollbar=True, enable_events=True)],
             [gui.Button("Save", key="-SAVE-DESCRIPTION-BUTTON-", expand_x=True, disabled=True)]
         ]
