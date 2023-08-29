@@ -132,14 +132,16 @@ class MainWindow:
         self.__window = gui.Window("Skin Annotator Tool", layout, element_justification="center", finalize=True)
 
     def __on_skin_description_input_changed(self, values: dict):
-        save_button_disabled = values["-SKIN-DESCRIPTION-INPUT-"].isspace() or (values["-SKIN-DESCRIPTION-INPUT-"] == self.__current_description)
+        save_button_disabled = not values["-SKIN-DESCRIPTION-INPUT-"] or values["-SKIN-DESCRIPTION-INPUT-"].isspace() or (values["-SKIN-DESCRIPTION-INPUT-"] == self.__current_description)
         self.__window["-SAVE-DESCRIPTION-BUTTON-"].update(disabled=save_button_disabled)
+        self.__window.refresh()
 
     def __load_skin(self) -> None:
         self.__window["-SKIN-FRONT-IMAGE-"].update(data=asyncio.run(render_skin(self.current_skin, SKIN_RENDER_HORIZONTAL_ROTATION, self.draw_skin_outline)), size=(220, 420))
         self.__window["-SKIN-BACK-IMAGE-"].update(data=asyncio.run(render_skin(self.current_skin, SKIN_RENDER_HORIZONTAL_ROTATION - 180, self.draw_skin_outline)), size=(220, 420))
-        self.__window["-SKIN-FILENAME-TEXT-"].update(self.current_skin)
+        self.__window["-SKIN-FILENAME-BUTTON-"].update(self.current_skin)
         self.__window["-SKIN-DESCRIPTION-INPUT-"].update(self.__current_description or "")
+        self.__window.refresh()
 
 
 if __name__ == "__main__":
