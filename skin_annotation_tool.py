@@ -25,10 +25,10 @@ def outline_image(img: Image, outline_color=(255, 255, 255)) -> Image:
     return Image.fromarray(data)
 
 
-async def render_skin(filename: str, hr: int, draw_outline: bool) -> bytes:
+async def render_skin(filename: str, hr: int, display_second_layer: bool, draw_outline: bool) -> bytes:
     skin = Skin(raw_skin=Image.open(f"{SKINS_DIRECTORY}/{filename}"))
 
-    render = await skin.render_skin(hr=hr, vr=-20, vrra=-5, vrla=5, vrrl=-5, vrll=5, aa=True)
+    render = await skin.render_skin(hr=hr, vr=-20, vrra=-5, vrla=5, vrrl=-5, vrll=5, display_hair=display_second_layer, display_second_layer=display_second_layer, aa=True)
 
     if draw_outline:
         render = ImageOps.expand(render, border=1, fill=(255, 255, 255, 0))
@@ -80,8 +80,12 @@ class MainWindow:
         self.__init_window()
 
         self.__skins = sorted(os.listdir(SKINS_DIRECTORY), key=lambda filename: int(Path(filename).stem))
-        self.draw_skin_outline = True
+        self.__draw_skin_outline = True
+        self.__display_skin_second_layer = True
+
         self.current_skin_index = 0
+
+        self.__on_display_second_layer_changed()
 
     @property
     def current_skin_index(self) -> int:
@@ -116,8 +120,11 @@ class MainWindow:
             elif event == "-SKIN-DESCRIPTION-INPUT-":
                 self.__on_skin_description_input_changed(values)
             elif event == "-TOGGLE-SKIN-OUTLINE-BUTTON-":
-                self.draw_skin_outline = not self.draw_skin_outline
+                self.__draw_skin_outline = not self.__draw_skin_outline
                 self.__load_skin()
+            elif event == "-TOGGLE-SKIN-SECOND-LEVEL-BUTTON-":
+                self.__display_skin_second_layer = not self.__display_skin_second_layer
+                self.__on_display_second_layer_changed()
             elif event == "-SKIN-FILENAME-BUTTON-":
                 pyperclip.copy(self.__window[event].get_text())
 
@@ -125,8 +132,8 @@ class MainWindow:
 
     def __init_window(self) -> None:
         layout = [
-            [gui.Button("Toggle outline", key="-TOGGLE-SKIN-OUTLINE-BUTTON-")],
-            [gui.Text("Front view"), gui.Text(size=(15, 1)), gui.Text("Back view")],
+            [gui.Button("Toggle outline", key="-TOGGLE-SKIN-OUTLINE-BUTTON-"), gui.Button("Toggle 2nd level", key="-TOGGLE-SKIN-SECOND-LEVEL-BUTTON-")],
+            [gui.Text("Front view"), gui.Text(key="-SKIN-SECOND-LEVEL-TEXT-", size=(15, 1), justification="center"), gui.Text("Back view")],
             [gui.Image(key="-SKIN-FRONT-IMAGE-", size=(220, 420)), gui.Image(key="-SKIN-BACK-IMAGE-", size=(220, 420))],
             [gui.Button("<<<", key="-FIRST-SKIN-BUTTON-"), gui.Button("<", key="-PREVIOUS-SKIN-BUTTON-", size=(4, None)), gui.Button(key="-SKIN-FILENAME-BUTTON-", size=(15, 1), tooltip="Copy filename"), gui.Button(">", key="-NEXT-SKIN-BUTTON-", size=(4, None)), gui.Button(">>>", key="-LAST-SKIN-BUTTON-")],
             [gui.Multiline(key='-SKIN-DESCRIPTION-INPUT-', size=(60, 4), expand_x=True, no_scrollbar=True, enable_events=True)],
@@ -139,9 +146,13 @@ class MainWindow:
         self.__window["-SAVE-DESCRIPTION-BUTTON-"].update(disabled=save_button_disabled)
         self.__window.refresh()
 
+    def __on_display_second_layer_changed(self):
+        self.__window["-SKIN-SECOND-LEVEL-TEXT-"].update("2 layers" if self.__display_skin_second_layer else "1 layer")
+        self.__load_skin()
+
     def __load_skin(self) -> None:
-        self.__window["-SKIN-FRONT-IMAGE-"].update(data=asyncio.run(render_skin(self.current_skin, SKIN_RENDER_HORIZONTAL_ROTATION, self.draw_skin_outline)), size=(220, 420))
-        self.__window["-SKIN-BACK-IMAGE-"].update(data=asyncio.run(render_skin(self.current_skin, SKIN_RENDER_HORIZONTAL_ROTATION - 180, self.draw_skin_outline)), size=(220, 420))
+        self.__window["-SKIN-FRONT-IMAGE-"].update(data=asyncio.run(render_skin(self.current_skin, SKIN_RENDER_HORIZONTAL_ROTATION, self.__display_skin_second_layer, self.__draw_skin_outline)), size=(220, 420))
+        self.__window["-SKIN-BACK-IMAGE-"].update(data=asyncio.run(render_skin(self.current_skin, SKIN_RENDER_HORIZONTAL_ROTATION - 180, self.__display_skin_second_layer, self.__draw_skin_outline)), size=(220, 420))
         self.__window["-SKIN-FILENAME-BUTTON-"].update(self.current_skin)
         self.__window["-SKIN-DESCRIPTION-INPUT-"].update(self.__current_description or "")
         self.__window.refresh()
